@@ -1,0 +1,41 @@
+name: Build and Release Linux Binary
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Build for Linux (amd64)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X 'RealityChecker/internal/version.Version=v3.0'" -o RealityChecker-linux-amd64 .
+
+      - name: Package Binary
+        run: |
+          zip -r RealityChecker-linux-amd64.zip RealityChecker-linux-amd64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RealityChecker-Linux-Build
+          path: RealityChecker-linux-amd64.zip
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'release'
+        with:
+          files: RealityChecker-linux-amd64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
