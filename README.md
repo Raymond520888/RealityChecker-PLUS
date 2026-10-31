@@ -63,7 +63,7 @@
 
 **方法1：直接下载（推荐）**
 
-从 [Releases](https://github.com/xxx) 页面下载对应架构的zip文件：
+从 [Releases](https://github.com/Raymond520888/RealityChecker-PLUS/releases) 页面下载对应架构的zip文件：
 
 ```bash
 # Linux x86_64
