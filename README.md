@@ -67,10 +67,9 @@
 
 ```bash
 # Linux x86_64
-wget https://github.com/V2RaySSR/RealityChecker/releases/latest/download/reality-checker-linux-amd64.zip
-
+wget https://github.com/666
 # Linux ARM64
-wget https://github.com/V2RaySSR/RealityChecker/releases/latest/download/reality-checker-linux-arm64.zip
+wget https://github.com/666
 ```
 
 解压后直接使用：
