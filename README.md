@@ -2,7 +2,6 @@
 
 一个专业的Reality协议目标网站检测工具，用于评估网站是否适合作为Reality协议的目标域名。
 
-[V2RaySSR综合网](https://v2rayssr.com)
 
 ## ✨ 功能特性
 
@@ -64,7 +63,7 @@
 
 **方法1：直接下载（推荐）**
 
-从 [Releases](https://github.com/V2RaySSR/RealityChecker/releases) 页面下载对应架构的zip文件：
+从 [Releases](https://github.com/xxx) 页面下载对应架构的zip文件：
 
 ```bash
 # Linux x86_64
@@ -125,7 +124,7 @@ go build -o reality-checker
 
 ### 推荐工作流程
 
-对于大量域名检测，建议配合使用 [RealiTLScanner](https://github.com/XTLS/RealiTLScanner) 工具（ [教程观看](https://www.youtube.com/watch?v=zE8CFQ6muUI) ）：
+对于大量域名检测，建议配合使用 [RealiTLScanner](https://github.com/XTLS/RealiTLScanner) 工具
 
 **1. 使用RealiTLScanner扫描VPS IP：**
 ```bash
