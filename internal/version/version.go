@@ -2,7 +2,7 @@ package version
 
 // 版本信息，由构建时注入
 var (
-	Version   = "dev"
+	Version   = "v3.0"
 	Commit    = "unknown"
 	BuildTime = "unknown"
 )
