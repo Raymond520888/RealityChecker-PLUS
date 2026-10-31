@@ -132,19 +132,6 @@ func getDisplayWidth(s string) int {
 
 // PrintAdvertisement 打印广告信息
 func PrintAdvertisement() {
-	// 使用颜色代码
-	blue := "\033[36m"   // 青色
-	yellow := "\033[33m" // 黄色
-	white := "\033[37m"  // 白色
-	reset := "\033[0m"   // 重置颜色
-
-	fmt.Println()
-	fmt.Printf("%s-----------------------------------------------------%s\n", white, reset)
-	fmt.Println()
-	fmt.Printf("%s %s五年老机场%s %s%shttps://goii.cc/mn%s %s（牧牛云）%s\n",
-		white,
-		yellow, reset,
-		blue, white, reset,
-		yellow, reset)
-	fmt.Println()
+	// 彻底清空，防止任何地方调用时打印广告
+	return
 }
