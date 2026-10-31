@@ -22,20 +22,29 @@ jobs:
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X 'RealityChecker/internal/version.Version=v3.0'" -o RealityChecker-linux-amd64 .
 
-      - name: Package Binary
+      - name: Build for Linux (arm64)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X 'RealityChecker/internal/version.Version=v3.0'" -o RealityChecker-linux-arm64 .
+
+      - name: Package Binaries
         run: |
           zip -r RealityChecker-linux-amd64.zip RealityChecker-linux-amd64
+          zip -r RealityChecker-linux-arm64.zip RealityChecker-linux-arm64
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RealityChecker-Linux-Build
-          path: RealityChecker-linux-amd64.zip
+          name: RealityChecker-Linux-Builds
+          path: |
+            RealityChecker-linux-amd64.zip
+            RealityChecker-linux-arm64.zip
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'release'
         with:
-          files: RealityChecker-linux-amd64.zip
+          files: |
+            RealityChecker-linux-amd64.zip
+            RealityChecker-linux-arm64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
