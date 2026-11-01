@@ -159,8 +159,8 @@ go build -o RealityChecker
 
 - [Country.mmdb](https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb)
 - [gfwlist.conf](https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt)
-- [cdn_keywords.txt](https://raw.githubusercontent.com/V2RaySSR/RealityChecker/main/data/cdn_keywords.txt)
-- [hot_websites.txt](https://raw.githubusercontent.com/V2RaySSR/RealityChecker/main/data/hot_websites.txt)
+- [cdn_keywords.txt](https://raw.githubusercontent.com/Raymond520888/RealityChecker-PLUS/refs/heads/main/data/gfwlist.conf)
+- [hot_websites.txt](https://raw.githubusercontent.com/Raymond520888/RealityChecker-PLUS/refs/heads/main/data/hot_websites.txt)
 
 
 ## 🏆 致谢
