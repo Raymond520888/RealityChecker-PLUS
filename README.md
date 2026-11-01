@@ -27,7 +27,8 @@
 
 **实际运行效果：**
 
-![RealityChecker检测结果示例](RealityChecker.png)
+<img width="1127" height="913" alt="Example" src="https://github.com/user-attachments/assets/55dc4ea6-5ae4-4fb7-afa3-c55b9811438f" />
+
 
 **只有满足Reality目标域名硬性条件的（TLS1.3、X25519MLKEM768、H2、SNI匹配、证书有效），才会在列表中显示**
 
