@@ -22,7 +22,7 @@
 以下是一个批量检测的实际输出示例：
 
 ```bash
-./reality-checker csv file.csv
+./RealityChecker csv file.csv
 ```
 
 **实际运行效果：**
@@ -75,27 +75,27 @@ wget https://github.com/Raymond520888/RealityChecker-PLUS/releases/download/v3.0
 解压后直接使用：
 ```bash
 # 解压
-unzip reality-checker-linux-amd64.zip/reality-checker-linux-arm64.zip   看自己下载的选择对应
+unzip RealityChecker-linux-amd64.zip/RealityChecker-linux-arm64.zip   看自己下载的选择对应
 
 # 添加执行权限
-chmod +x reality-checker
+chmod +x RealityChecker
 
 # 开始检测
-./reality-checker check <域名>
+./RealityChecker check <域名>
 ```
 
 **方法2：本地编译**
 
 ```bash
 # 克隆项目
-git clone https://github.com/V2RaySSR/RealityChecker.git
+git clone https://github.com/Raymond520888/RealityChecker.git
 cd RealityChecker
 
 # 编译程序
-go build -o reality-checker
+go build -o RealityChecker
 
 # 开始检测
-./reality-checker check <域名>
+./RealityChecker check <域名>
 ```
 
 ## 🔍 使用示例
@@ -104,21 +104,21 @@ go build -o reality-checker
 
 ```bash
 # 基础检测
-./reality-checker check apple.com
+./RealityChecker check apple.com
 ```
 
 ### 批量检测
 
 ```bash
 # 批量检测多个域名（空格分隔）
-./reality-checker batch apple.com tesla.com microsoft.com
+./RealityChecker batch apple.com tesla.com microsoft.com
 ```
 
 ### CSV文件检测
 
 ```bash
 # 从CSV文件批量检测域名
-./reality-checker csv file.csv
+./RealityChecker csv file.csv
 ```
 
 ### 推荐工作流程
@@ -132,7 +132,7 @@ go build -o reality-checker
 
 **2. 使用本工具检测生成的CSV文件：**
 ```bash
-./reality-checker csv file.csv
+./RealityChecker csv file.csv
 ```
 
 **重要提示：**
@@ -144,10 +144,10 @@ go build -o reality-checker
 
 ```bash
 # 显示使用说明
-./reality-checker
+./RealityChecker
 
 # 查看版本信息
-./reality-checker version
+./RealityChecker version
 ```
 
 ## 🔧常见问题
