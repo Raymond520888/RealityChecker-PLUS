@@ -144,6 +144,8 @@ go build -o RealityChecker
 
 **RealITLScanner-GUI-of-Chinese的直接输入IP/CIDR/域名然后点击开始即可**  
 
+[视频教程](https://www.youtube.com/watch?v=zE8CFQ6muUI&ra=m)
+
 ### 查看帮助
 
 ```bash
