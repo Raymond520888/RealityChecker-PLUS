@@ -30,7 +30,7 @@
 <img width="1127" height="913" alt="Example" src="https://github.com/user-attachments/assets/55dc4ea6-5ae4-4fb7-afa3-c55b9811438f" />
 
 
-**只有满足Reality目标域名硬性条件的（TLS1.3、X25519MLKEM768、H2、SNI匹配、证书有效），才会在列表中显示**
+**只有满足Reality目标域名硬性条件的（TLS1.3、X25519MLKEM768、ALPN=H2、SNI匹配、证书有效），才会在列表中显示**
 
 ### CDN检测等级说明
 
@@ -43,7 +43,7 @@
 
 ### 热门网站说明
 
-热门网站（如 apple.com、tesla.com、microsoft.com 等）由于使用人群多，容易被识别和封禁，因此不太推荐作为 Reality 协议的目标域名。
+热门网站（如 apple.com、tesla.com、microsoft.com 等）由于使用人群多容易被识别和封禁，因此不太推荐作为 Reality 协议的目标域名。
 
 **结果分析：**
 - 所有域名都支持TLS 1.3、X25519MLKEM768、HTTP/2和SNI匹配
@@ -172,4 +172,4 @@ go build -o RealityChecker
 
 ---
 
-**注意**: 本工具仅用于技术研究和学习目的，请遵守当地法律法规，合理使用网络资源。
+**免责声明**: 本工具仅用于技术研究和学习目的，请遵守当地法律法规并合理使用网络资源。
