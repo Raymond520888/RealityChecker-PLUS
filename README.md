@@ -136,12 +136,12 @@ go build -o RealityChecker
 ./RealityChecker csv file.csv
 ```
 
-RealITLScanner-GUI-of-Chinese的直接输入IP/CIDR/域名然后点击开始即可
-
 **重要提示：**
 - RealiTLScanner 尽量在本地PC运行，不要在远端
 - 多次运行RealiTLScanner时，请更改输出文件名，如：`file1.csv`、`file2.csv`、`file3.csv` 等
 - 如果使用相同的文件名，可能会导致文件导出失败或覆盖之前的扫描结果
+
+**RealITLScanner-GUI-of-Chinese的直接输入IP/CIDR/域名然后点击开始即可**  
 
 ### 查看帮助
 
