@@ -124,7 +124,7 @@ go build -o RealityChecker
 
 ### 推荐工作流程
 
-对于大量域名检测，建议配合使用 [RealiTLScanner](https://github.com/XTLS/RealiTLScanner) 工具
+对于大量域名检测，建议配合使用 [RealiTLScanner](https://github.com/XTLS/RealiTLScanner)或者(https://github.com/Raymond520888/RealiTLScanner-GUI-of-Chinese)工具
 
 **1. 使用RealiTLScanner扫描VPS IP：**
 ```bash
