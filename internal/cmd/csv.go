@@ -124,6 +124,7 @@ func shouldExcludeDomain(domain string) bool {
 
 	blockedDomains := []string{
 		"apple.com",
+		"icloud.com",
 		"tesla.com",
 		"microsoft.com",
 		"cloudflare.com",
