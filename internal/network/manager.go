@@ -152,9 +152,7 @@ func (cm *ConnectionManager) GetX25519TLSConnection(ctx context.Context, domain 
 	tlsConn := tls.Client(tcpConn, &tls.Config{
 		ServerName:       domain,
 		NextProtos:       []string{"h2", "http/1.1"},
-		// 🔴 核心修改：这里改成 4588 (X25519MLKEM768 的 IANA 标准 ID)
-		// 如果你的 Go 版本 >= 1.24，也可以写 tls.X25519MLKEM768
-		CurvePreferences: []tls.CurveID{4588}, 
+		CurvePreferences: []tls.CurveID{4588},
 	})
 
 	// 执行TLS握手
