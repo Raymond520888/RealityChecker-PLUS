@@ -44,7 +44,7 @@
 
 ### 热门网站说明
 
-热门网站（如 apple.com、tesla.com、microsoft.com 等）由于使用人群多容易被识别和封禁，因此不太推荐作为 Reality 协议的目标域名。
+热门网站如 apple.com、icloud.com、cloudflare.com、tesla.com、microsoft.com 等，由于使用人群多容易被识别和封禁因此不太推荐作为 Reality 协议的目标域名。
 
 **结果分析：**
 - 所有域名都支持TLS 1.3、X25519MLKEM768、HTTP/2和SNI匹配
