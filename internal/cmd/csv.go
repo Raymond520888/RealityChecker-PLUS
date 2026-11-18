@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -119,6 +120,20 @@ func shouldExcludeDomain(domain string) bool {
 		return true
 	}
 
+	domainLower := strings.ToLower(domain)
+
+	blockedDomains := []string{
+		"apple.com",
+		"tesla.com",
+		"microsoft.com",
+		"cloudflare.com",
+	}
+	for _, blocked := range blockedDomains {
+		if domainLower == blocked || strings.HasSuffix(domainLower, "."+blocked) {
+			return true
+		}
+	}
+
 	excludePatterns := []string{
 		"localhost",
 		"server.domain.com",
@@ -129,28 +144,14 @@ func shouldExcludeDomain(domain string) bool {
 		"Unspecified",
 	}
 
-	domainLower := strings.ToLower(domain)
-
 	for _, pattern := range excludePatterns {
 		if strings.Contains(domainLower, strings.ToLower(pattern)) {
 			return true
 		}
 	}
 
-	if strings.Contains(domain, ".") && !strings.Contains(domain, "..") {
-		parts := strings.Split(domain, ".")
-		if len(parts) == 4 {
-			isIP := true
-			for _, part := range parts {
-				if len(part) > 3 {
-					isIP = false
-					break
-				}
-			}
-			if isIP {
-				return true
-			}
-		}
+	if net.ParseIP(domain) != nil {
+		return true
 	}
 
 	if len(domain) < 3 {
