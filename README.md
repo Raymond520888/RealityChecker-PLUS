@@ -27,7 +27,8 @@
 
 **实际运行效果：**
 
-<img width="1127" height="913" alt="Example" src="https://github.com/user-attachments/assets/55dc4ea6-5ae4-4fb7-afa3-c55b9811438f" />
+<img width="1127" height="913" alt="example" src="https://github.com/user-attachments/assets/17774b77-1ba4-40dd-abeb-15dc201eebca" />
+
 
 
 **只有满足Reality目标域名硬性条件的（TLS1.3、X25519MLKEM768、ALPN=H2、SNI匹配、证书有效），才会在列表中显示**
