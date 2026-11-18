@@ -106,14 +106,14 @@ go build -o RealityChecker
 
 ```bash
 # 基础检测
-./RealityChecker check apple.com
+./RealityChecker check www.asus.com
 ```
 
 ### 批量检测
 
 ```bash
 # 批量检测多个域名（空格分隔）
-./RealityChecker batch apple.com tesla.com microsoft.com
+./RealityChecker batch www.asus.com www.msi.com www.gigabyte.com
 ```
 
 ### CSV文件检测
