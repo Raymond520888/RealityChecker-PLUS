@@ -128,13 +128,15 @@ go build -o RealityChecker
 
 **1. 使用RealiTLScanner扫描VPS IP：**
 ```bash
-./RealiTLScanner -addr <VPS IP> -port 443 -thread 100 -timeout 5 -out file.csv
+./RealiTLScanner -addr <VPS IP> -port 443 -thread 128 -timeout 5 -out file.csv
 ```
 
 **2. 使用本工具检测生成的CSV文件：**
 ```bash
 ./RealityChecker csv file.csv
 ```
+
+RealITLScanner-GUI-of-Chinese的直接输入IP/CIDR/域名然后点击开始即可
 
 **重要提示：**
 - RealiTLScanner 尽量在本地PC运行，不要在远端
