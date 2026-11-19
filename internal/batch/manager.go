@@ -13,7 +13,6 @@ import (
 	"RealityChecker/internal/types"
 )
 
-// Manager 批量管理器
 type Manager struct {
 	engine         *core.Engine
 	formatter      *report.Formatter
@@ -23,7 +22,6 @@ type Manager struct {
 	running        bool
 }
 
-// NewManager 创建批量管理器
 func NewManager(config *types.Config) *Manager {
 	return &Manager{
 		config:         config,
@@ -32,7 +30,6 @@ func NewManager(config *types.Config) *Manager {
 	}
 }
 
-// NewManagerWithEngine 使用现有引擎创建批量管理器
 func NewManagerWithEngine(engine *core.Engine, config *types.Config) *Manager {
 	return &Manager{
 		engine:         engine,
@@ -42,7 +39,6 @@ func NewManagerWithEngine(engine *core.Engine, config *types.Config) *Manager {
 	}
 }
 
-// Start 启动批量管理器
 func (bm *Manager) Start() error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -51,7 +47,6 @@ func (bm *Manager) Start() error {
 		return fmt.Errorf("批量管理器已在运行")
 	}
 
-	// 如果没有引擎，创建新引擎
 	if bm.engine == nil {
 		bm.engine = core.NewEngine(bm.config)
 		if err := bm.engine.Start(); err != nil {
@@ -59,13 +54,10 @@ func (bm *Manager) Start() error {
 		}
 	}
 
-	// 批量管理器简化：直接使用引擎，无需额外的调度器和缓存
-
 	bm.running = true
 	return nil
 }
 
-// Stop 停止批量管理器
 func (bm *Manager) Stop() error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -74,9 +66,6 @@ func (bm *Manager) Stop() error {
 		return nil
 	}
 
-	// 批量管理器简化：无需停止额外的组件
-
-	// 停止引擎
 	if bm.engine != nil {
 		bm.engine.Stop()
 	}
@@ -85,7 +74,6 @@ func (bm *Manager) Stop() error {
 	return nil
 }
 
-// CheckDomains 批量检测域名
 func (bm *Manager) CheckDomains(ctx context.Context, domains []string) ([]*types.DetectionResult, error) {
 	if !bm.running {
 		return nil, fmt.Errorf("批量管理器未运行")
@@ -97,35 +85,26 @@ func (bm *Manager) CheckDomains(ctx context.Context, domains []string) ([]*types
 
 	startTime := time.Now()
 
-	// 使用流式检测显示实时进度
 	results, err := bm.CheckDomainsWithProgress(ctx, domains)
 	if err != nil {
 		return nil, err
 	}
 
-	// 生成批量报告
 	batchReport := bm.generateBatchReport(results, startTime, time.Now())
-
-	// 打印报告
 	fmt.Println(bm.formatBatchReport(batchReport))
 
 	return results, nil
 }
 
-// CheckDomainsWithProgress 带进度显示的并发批量检测
 func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []string) ([]*types.DetectionResult, error) {
 	results := make([]*types.DetectionResult, len(domains))
 	resultChan := make(chan *ProgressResult, len(domains))
 
-	// 启动并发检测
 	go func() {
 		defer close(resultChan)
 
-		// 使用WaitGroup控制并发
 		var wg sync.WaitGroup
-
-		// 使用配置的最大并发数，提高检测效率
-		concurrency := int(bm.config.Concurrency.MaxConcurrent) // 使用配置的并发数（默认8个）
+		concurrency := int(bm.config.Concurrency.MaxConcurrent)
 		semaphore := make(chan struct{}, concurrency)
 
 		for i, domain := range domains {
@@ -133,7 +112,6 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 			go func(index int, domain string) {
 				defer wg.Done()
 
-				// 获取信号量
 				select {
 				case semaphore <- struct{}{}:
 					defer func() {
@@ -143,10 +121,8 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 					return
 				}
 
-				// 检测域名
 				result, err := bm.engine.CheckDomain(ctx, domain)
 
-				// 发送结果
 				select {
 				case resultChan <- &ProgressResult{
 					Index:  index,
@@ -163,41 +139,64 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 		wg.Wait()
 	}()
 
-	// 收集结果并显示进度
 	completed := 0
-	timeout := time.NewTimer(15 * time.Second) // 添加15秒总超时
+	timeout := time.NewTimer(15 * time.Second)
 	defer timeout.Stop()
 
 	for completed < len(domains) {
 		select {
 		case progressResult := <-resultChan:
-			results[progressResult.Index] = progressResult.Result
 			completed++
 
-			// 显示进度
-			fmt.Printf("[%s] 正在检测 [%d/%d]: %s... ", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain)
-
 			if progressResult.Error != nil {
-				fmt.Printf("失败 - %v\n", progressResult.Error)
-			} else if progressResult.Result.Suitable {
+				results[progressResult.Index] = progressResult.Result
+				fmt.Printf("[%s] 正在检测 [%d/%d]: %s... 失败 - %v\n", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain, progressResult.Error)
+				continue
+			}
+
+			// 检查引擎重定向后提取的最终域名，是否有大厂域名
+			finalDomain := progressResult.Domain
+			if progressResult.Result != nil && progressResult.Result.Domain != "" {
+				finalDomain = progressResult.Result.Domain
+			}
+			
+			finalDomainLower := strings.ToLower(finalDomain)
+			isBlocked := strings.Contains(finalDomainLower, "apple.com") ||
+				strings.Contains(finalDomainLower, "tesla.com") ||
+				strings.Contains(finalDomainLower, "microsoft.com") ||
+				strings.Contains(finalDomainLower, "cloudflare.com")
+
+			if isBlocked {
+				results[progressResult.Index] = &types.DetectionResult{
+					Domain:   finalDomain,
+					Index:    progressResult.Index,
+					Suitable: false,
+					Error:    fmt.Errorf("命中黑名单，强制忽略"),
+				}
+				fmt.Printf("[%s] 正在检测 [%d/%d]: %s... 已忽略 (重定向至大厂)\n", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain)
+				continue
+			}
+
+			results[progressResult.Index] = progressResult.Result
+
+			fmt.Printf("[%s] 正在检测 [%d/%d]: %s... ", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain)
+			if progressResult.Result.Suitable {
 				fmt.Printf("适合\n")
 			} else {
-				// 获取不适合的原因
 				reason := "未知原因"
 				if progressResult.Result.Error != nil {
 					reason = progressResult.Result.Error.Error()
 				}
 				fmt.Printf("不适合 - %s\n", reason)
 			}
+
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-timeout.C:
-			// 超时处理：显示未完成的域名
 			fmt.Printf("\n[%s] 检测超时，以下域名未完成检测：\n", time.Now().Format("15:04:05"))
 			for i, domain := range domains {
 				if results[i] == nil {
 					fmt.Printf("  - %s (超时)\n", domain)
-					// 创建超时结果
 					results[i] = &types.DetectionResult{
 						Domain:   domain,
 						Index:    i,
@@ -213,7 +212,6 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 	return results, nil
 }
 
-// ProgressResult 进度结果
 type ProgressResult struct {
 	Index  int
 	Domain string
@@ -221,34 +219,30 @@ type ProgressResult struct {
 	Error  error
 }
 
-// CheckDomainsStream 流式批量检测域名
 func (bm *Manager) CheckDomainsStream(ctx context.Context, domains []string) (<-chan *types.DetectionResult, error) {
 	if !bm.running {
 		return nil, fmt.Errorf("批量管理器未运行")
 	}
-
 	return bm.engine.CheckDomainsStream(ctx, domains)
 }
 
-// generateBatchReport 生成批量报告
 func (bm *Manager) generateBatchReport(results []*types.DetectionResult, startTime, endTime time.Time) *types.BatchReport {
 	stats := &types.Statistics{
 		TotalDomains: len(results),
 	}
 
 	for _, result := range results {
-		// 区分技术错误和正常的检测结果
+		if result == nil {
+			continue
+		}
+
 		if result.Error == nil {
-			// 没有技术错误，检测成功
 			stats.SuccessfulChecks++
 		} else {
-			// 检查是否是正常的检测结果（被墙、国内等）
 			errorMsg := result.Error.Error()
 			if strings.Contains(errorMsg, "域名被墙") || strings.Contains(errorMsg, "国内网站") {
-				// 被墙和国内网站是正常的检测结果，不算失败
 				stats.SuccessfulChecks++
 			} else {
-				// 真正的技术错误
 				stats.FailedChecks++
 			}
 		}
@@ -276,11 +270,9 @@ func (bm *Manager) generateBatchReport(results []*types.DetectionResult, startTi
 	}
 }
 
-// formatBatchReport 格式化批量报告
 func (bm *Manager) formatBatchReport(report *types.BatchReport) string {
 	var result strings.Builder
 
-	// 报告头部
 	result.WriteString(fmt.Sprintf(`
 批量检测报告
 总耗时: %s
@@ -295,16 +287,18 @@ func (bm *Manager) formatBatchReport(report *types.BatchReport) string {
 		report.Summary.SuitabilityRate*100,
 	))
 
-	// 分离适合和不适合的域名
 	var suitableResults []*types.DetectionResult
 	var unsuitableResults []*types.DetectionResult
-	var excludedResults []*types.DetectionResult // 状态码不自然的域名
+	var excludedResults []*types.DetectionResult
 
 	for _, domainResult := range report.Results {
+		if domainResult == nil {
+			continue
+		}
+
 		if domainResult.Suitable && domainResult.Error == nil {
 			suitableResults = append(suitableResults, domainResult)
 		} else {
-			// 检查是否因为状态码不自然而被排除
 			if domainResult.StatusCodeCategory == types.StatusCodeCategoryExcluded {
 				excludedResults = append(excludedResults, domainResult)
 			} else {
@@ -313,22 +307,17 @@ func (bm *Manager) formatBatchReport(report *types.BatchReport) string {
 		}
 	}
 
-	// 显示适合的域名表格
 	if len(suitableResults) > 0 {
-		// 按星级排序：1星在最上面，5星在最下面
 		bm.sortByRecommendationStars(suitableResults)
-
 		result.WriteString("适合的域名:\n\n")
 		result.WriteString(bm.tableFormatter.FormatSuitableTable(suitableResults))
 		result.WriteString("\n")
 	}
 
-	// 显示不适合的域名统计
 	if len(unsuitableResults) > 0 {
 		result.WriteString(bm.tableFormatter.FormatUnsuitableSummary(unsuitableResults))
 	}
 
-	// 显示被排除的域名（状态码不自然）
 	if len(excludedResults) > 0 {
 		result.WriteString("\n")
 		result.WriteString(bm.formatExcludedDomains(excludedResults))
@@ -337,7 +326,6 @@ func (bm *Manager) formatBatchReport(report *types.BatchReport) string {
 	return result.String()
 }
 
-// formatExcludedDomains 格式化被排除的域名（状态码不自然）
 func (bm *Manager) formatExcludedDomains(excludedResults []*types.DetectionResult) string {
 	if len(excludedResults) == 0 {
 		return ""
@@ -346,7 +334,6 @@ func (bm *Manager) formatExcludedDomains(excludedResults []*types.DetectionResul
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("状态码不自然的域名 (%d个):\n", len(excludedResults)))
 
-	// 统计各种状态码
 	statusCodeCounts := make(map[int]int)
 	for _, domainResult := range excludedResults {
 		if domainResult.Network != nil {
@@ -354,7 +341,6 @@ func (bm *Manager) formatExcludedDomains(excludedResults []*types.DetectionResul
 		}
 	}
 
-	// 按状态码排序显示
 	var statusCodes []int
 	for statusCode := range statusCodeCounts {
 		statusCodes = append(statusCodes, statusCode)
@@ -369,23 +355,6 @@ func (bm *Manager) formatExcludedDomains(excludedResults []*types.DetectionResul
 	return result.String()
 }
 
-// calculateOptimalConcurrency 计算最优并发数
-func (bm *Manager) calculateOptimalConcurrency(domainCount int) int {
-	// 更激进的并发策略，提高检测效率
-	if domainCount <= 5 {
-		return domainCount // 小批量：每个域名一个并发
-	} else if domainCount <= 20 {
-		return 6 // 中小批量：6个并发
-	} else if domainCount <= 50 {
-		return 8 // 中批量：8个并发
-	} else if domainCount <= 100 {
-		return 10 // 大批量：10个并发
-	} else {
-		return 12 // 超大批量：最多12个并发
-	}
-}
-
-// formatDuration 格式化时间显示
 func formatDuration(d time.Duration) string {
 	if d < time.Millisecond {
 		return fmt.Sprintf("%.0fµs", float64(d.Nanoseconds())/1000)
@@ -400,28 +369,23 @@ func formatDuration(d time.Duration) string {
 	}
 }
 
-// sortByRecommendationStars 按推荐星级排序，1星在最上面，5星在最下面
 func (bm *Manager) sortByRecommendationStars(results []*types.DetectionResult) {
-	// 使用sort.Slice进行排序
 	sort.Slice(results, func(i, j int) bool {
 		starsI := bm.calculateStars(results[i])
 		starsJ := bm.calculateStars(results[j])
-		return starsI < starsJ // 升序排列：1星在前，5星在后
+		return starsI < starsJ
 	})
 }
 
-// calculateStars 计算域名的推荐星级数量
 func (bm *Manager) calculateStars(result *types.DetectionResult) int {
 	stars := 0
 
-	// 1. TLS硬性条件检查 (TLS1.3 + X25519 + H2 + SNI匹配)
 	if result.TLS != nil && result.TLS.SupportsTLS13 &&
 		result.TLS.SupportsX25519 && result.TLS.SupportsHTTP2 &&
 		result.SNI != nil && result.SNI.SNIMatch {
 		stars++
 	}
 
-	// 2. 握手时间延迟小 (<= 200ms)
 	if result.TLS != nil && result.TLS.HandshakeTime > 0 {
 		handshakeMs := int(result.TLS.HandshakeTime.Milliseconds())
 		if handshakeMs <= 200 {
@@ -429,17 +393,14 @@ func (bm *Manager) calculateStars(result *types.DetectionResult) int {
 		}
 	}
 
-	// 3. 没有CDN (不使用CDN更安全)
 	if result.CDN == nil || !result.CDN.IsCDN {
 		stars++
 	}
 
-	// 4. 不是热门网站 (热门网站不推荐作为Reality目标)
 	if result.CDN != nil && !result.CDN.IsHotWebsite {
 		stars++
 	}
 
-	// 5. 证书时间长 (>= 60天)
 	if result.Certificate != nil && result.Certificate.Valid {
 		if result.Certificate.DaysUntilExpiry >= 60 {
 			stars++
