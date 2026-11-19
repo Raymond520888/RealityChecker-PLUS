@@ -154,10 +154,14 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 				continue
 			}
 
-			// 检查引擎重定向后提取的最终域名，是否有大厂域名
+			// 🚨 修复：获取最终展示的域名，优先取 FinalDomain，与 report 保持绝对一致！
 			finalDomain := progressResult.Domain
-			if progressResult.Result != nil && progressResult.Result.Domain != "" {
-				finalDomain = progressResult.Result.Domain
+			if progressResult.Result != nil {
+				if progressResult.Result.Network != nil && progressResult.Result.Network.FinalDomain != "" {
+					finalDomain = progressResult.Result.Network.FinalDomain
+				} else if progressResult.Result.Domain != "" {
+					finalDomain = progressResult.Result.Domain
+				}
 			}
 			
 			finalDomainLower := strings.ToLower(finalDomain)
@@ -173,7 +177,7 @@ func (bm *Manager) CheckDomainsWithProgress(ctx context.Context, domains []strin
 					Suitable: false,
 					Error:    fmt.Errorf("命中黑名单，强制忽略"),
 				}
-				fmt.Printf("[%s] 正在检测 [%d/%d]: %s... 已忽略 (重定向至大厂)\n", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain)
+				fmt.Printf("[%s] 正在检测 [%d/%d]: %s... 已忽略 (重定向至大厂 %s)\n", time.Now().Format("15:04:05"), completed, len(domains), progressResult.Domain, finalDomain)
 				continue
 			}
 
