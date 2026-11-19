@@ -75,6 +75,7 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 		if strings.Contains(finalDomainLower, "apple.com") ||
 			strings.Contains(finalDomainLower, "icloud.com") ||
 			strings.Contains(finalDomainLower, "cloudflare.com") ||
+			strings.Contains(finalDomainLower, "fastly.com") ||
 			strings.Contains(finalDomainLower, "tesla.com") ||
 			strings.Contains(finalDomainLower, "microsoft.com") {
 			continue
