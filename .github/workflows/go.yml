@@ -31,9 +31,24 @@ jobs:
 
       - name: Package Binaries
         run: |
-          rm -f RealityChecker-linux-*.zip
-          zip -r RealityChecker-linux-amd64.zip RealityChecker-linux-amd64
-          zip -r RealityChecker-linux-arm64.zip RealityChecker-linux-arm64
+          # 清理可能存在的旧压缩包
+          rm -f *.zip
+          
+          # 处理 amd64 架构
+          mkdir -p tmp_amd64
+          cp RealityChecker-linux-amd64 tmp_amd64/RealityChecker
+          cd tmp_amd64
+          # 注意看这里：压缩包的输出名是 ../RealityChecker-linux-amd64.zip
+          zip -r ../RealityChecker-linux-amd64.zip RealityChecker
+          cd ..
+          
+          # 处理 arm64 架构
+          mkdir -p tmp_arm64
+          cp RealityChecker-linux-arm64 tmp_arm64/RealityChecker
+          cd tmp_arm64
+          # 注意看这里：压缩包的输出名是 ../RealityChecker-linux-arm64.zip
+          zip -r ../RealityChecker-linux-arm64.zip RealityChecker
+          cd ..
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
