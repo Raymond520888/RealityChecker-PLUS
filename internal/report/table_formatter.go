@@ -32,7 +32,7 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 
 	// 设置表头
 	t.AppendHeader(table.Row{
-		"最终域名", "基础条件", "握手时间", "证书时间", "CDN", "热门", "推荐", "页面状态",
+		"最终域名", "密钥交换", "握手时间", "证书时间", "CDN", "热门", "推荐", "页面状态",
 	})
 
 	// 设置表格样式 - 正常边框
@@ -50,7 +50,7 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 	// 设置列对齐方式
 	t.SetColumnConfigs([]table.ColumnConfig{
 		{Name: "最终域名", Align: text.AlignLeft},
-		{Name: "基础条件", Align: text.AlignCenter},
+		{Name: "密钥交换", Align: text.AlignCenter},
 		{Name: "握手时间", Align: text.AlignCenter},
 		{Name: "证书时间", Align: text.AlignCenter},
 		{Name: "CDN", Align: text.AlignCenter},
@@ -76,7 +76,6 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 			sni := result.SNI.SNIMatch
 
 			if tls13 && x25519mlkem768 && h2 && sni {
-				// 🔴 这里修改为显示具体的算法类型
 				basicConditionsText = text.FgGreen.Sprint("✓ X25519MLKEM768")
 			} else {
 				// 如果只是算法不支持，但其他条件满足，给出更明确的提示
