@@ -70,6 +70,7 @@
 ```bash
 # Linux x86_64
 wget https://github.com/Raymond520888/RealityChecker-PLUS/releases/download/v3.0/RealityChecker-linux-amd64.zip
+
 # Linux ARM64
 wget https://github.com/Raymond520888/RealityChecker-PLUS/releases/download/v3.0/RealityChecker-linux-arm64.zip
 ```
@@ -77,7 +78,9 @@ wget https://github.com/Raymond520888/RealityChecker-PLUS/releases/download/v3.0
 解压后直接使用：
 ```bash
 # 解压
-unzip RealityChecker-linux-amd64.zip/RealityChecker-linux-arm64.zip   看自己下载的选择对应
+unzip RealityChecker-linux-amd64.zip   
+                                          看自己下载的选择对应
+unzip RealityChecker-linux-arm64.zip
 
 # 添加执行权限
 chmod +x RealityChecker
