@@ -15,7 +15,7 @@ func (r *RootCmd) executeBatch(domainsStr string) {
 	if len(domains) == 0 {
 		ui.PrintErrorWithDetails(
 			"错误：没有有效的域名可以检测",
-			"提示：请检查域名格式，例如：apple.com, google.com",
+			"提示：请检查域名格式，例如：asus.com, msi.com",
 		)
 		return
 	}
