@@ -135,8 +135,6 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 				cdnText = text.FgRed.Sprint("高")
 			case "中":
 				cdnText = text.FgYellow.Sprint("中")
-			case "低":
-				cdnText = text.FgBlue.Sprint("低")
 			default:
 				cdnText = text.FgRed.Sprint(result.CDN.Confidence)
 			}
