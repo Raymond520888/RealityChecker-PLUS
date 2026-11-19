@@ -18,7 +18,6 @@ jobs:
           go-version: '1.27'
           cache: true
 
-      # 关键步骤：让 GitHub 自动解决所有依赖
       - name: Download dependencies
         run: go mod tidy
 
