@@ -19,10 +19,9 @@ func NewRedirectStage() *RedirectStage {
 
 // Execute 执行重定向检测
 func (rs *RedirectStage) Execute(ctx *types.PipelineContext) error {
-
 	// 创建HTTP客户端，禁用自动重定向
 	client := &http.Client{
-		Timeout: 3 * time.Second, // 减少HTTP客户端超时时间到3秒
+		Timeout: 3 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
@@ -41,13 +40,19 @@ func (rs *RedirectStage) Execute(ctx *types.PipelineContext) error {
 		RedirectCount: result.RedirectCount,
 		URL:           result.URL,
 		ResponseTime:  time.Since(ctx.StartTime),
-		Headers:       result.Headers, // 保存HTTP响应头
+		Headers:       result.Headers,
 	}
 
-	// 在重定向检测阶段进行HTTP CDN检测
-	httpCDNResult := rs.performHTTPCDNDetection(ctx, result.FinalDomain, ctx.Result.Network)
-	if httpCDNResult != nil {
-		ctx.Result.CDN = httpCDNResult
+	// 使用新的 cdncheck 库执行 CDN 检测
+	cdnStage := NewCDNStage()
+	isCDN, provider, confidence, evidence := cdnStage.detectCDN(result.FinalDomain, ctx.Result.Network)
+	if isCDN {
+		ctx.Result.CDN = &types.CDNResult{
+			IsCDN:       isCDN,
+			CDNProvider: provider,
+			Confidence:  confidence,
+			Evidence:    evidence,
+		}
 	}
 
 	// 更新域名
@@ -67,7 +72,7 @@ type RedirectResult struct {
 	IsRedirected  bool
 	RedirectCount int
 	URL           string
-	Headers       map[string]string // HTTP响应头
+	Headers       map[string]string
 }
 
 // followRedirects 跟踪重定向
@@ -95,7 +100,6 @@ func (rs *RedirectStage) followRedirects(client *http.Client, domain string) *Re
 			break
 		}
 
-		// 添加浏览器头
 		const (
 			userAgent      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 			acceptHeader   = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -115,15 +119,13 @@ func (rs *RedirectStage) followRedirects(client *http.Client, domain string) *Re
 		result.StatusCode = resp.StatusCode
 		result.URL = currentURL
 
-		// 保存HTTP响应头
 		result.Headers = make(map[string]string)
 		for name, values := range resp.Header {
 			if len(values) > 0 {
-				result.Headers[name] = values[0] // 取第一个值
+				result.Headers[name] = values[0]
 			}
 		}
 
-		// 检查是否有重定向
 		const (
 			redirectMin = 300
 			redirectMax = 400
@@ -131,7 +133,6 @@ func (rs *RedirectStage) followRedirects(client *http.Client, domain string) *Re
 		if resp.StatusCode >= redirectMin && resp.StatusCode < redirectMax {
 			location := resp.Header.Get("Location")
 			if location != "" {
-				// 处理相对URL
 				const (
 					rootPathPrefix = "/"
 					httpPrefix     = "http"
@@ -160,7 +161,6 @@ func (rs *RedirectStage) followRedirects(client *http.Client, domain string) *Re
 			}
 		}
 
-		// 没有重定向或重定向结束
 		parsedURL, _ := url.Parse(currentURL)
 		result.FinalDomain = parsedURL.Hostname()
 		resp.Body.Close()
@@ -172,56 +172,15 @@ func (rs *RedirectStage) followRedirects(client *http.Client, domain string) *Re
 
 // CanEarlyExit 是否可以早期退出
 func (rs *RedirectStage) CanEarlyExit() bool {
-	return true // 重定向检测必须在TLS检测之前执行
+	return true
 }
 
 // Priority 优先级
 func (rs *RedirectStage) Priority() int {
-	return 2 // 重定向检测第二优先级
+	return 2
 }
 
 // Name 阶段名称
 func (rs *RedirectStage) Name() string {
 	return "redirect"
-}
-
-// performHTTPCDNDetection 执行HTTP CDN检测
-func (rs *RedirectStage) performHTTPCDNDetection(ctx *types.PipelineContext, domain string, networkResult *types.NetworkResult) *types.CDNResult {
-	// 创建CDN检测阶段
-	cdnStage := NewCDNStage()
-
-	// 只执行HTTP相关的CDN检测方法
-	isCDN, provider, confidence, evidence := rs.performHTTPCDNChecks(cdnStage, networkResult)
-
-	if isCDN {
-		return &types.CDNResult{
-			IsCDN:       isCDN,
-			CDNProvider: provider,
-			Confidence:  confidence,
-			Evidence:    evidence,
-		}
-	}
-
-	return nil
-}
-
-// performHTTPCDNChecks 执行HTTP CDN检测检查
-func (rs *RedirectStage) performHTTPCDNChecks(cdnStage *CDNStage, networkResult *types.NetworkResult) (bool, string, string, string) {
-	// 高置信度检测（优先级最高）
-	// HTTP强响应头检测
-	if provider, evidence := cdnStage.checkHTTPStrongHeader(networkResult); provider != "" {
-		return true, provider, "高", evidence
-	}
-
-	// HTTP头值CDN域名检测
-	if provider, evidence := cdnStage.checkHTTPValueCdnDomains(networkResult); provider != "" {
-		return true, provider, "高", evidence
-	}
-
-	// 中等置信度检测（只有在没有高置信度时才执行）
-	// HTTP中等响应头检测
-	if provider, evidence := cdnStage.checkHTTPMediumHeader(networkResult); provider != "" {
-		return true, provider, "中", evidence
-	}
-	return false, "", "", ""
 }
