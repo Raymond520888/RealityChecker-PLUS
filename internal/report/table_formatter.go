@@ -67,7 +67,10 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 			finalDomain = result.Network.FinalDomain
 		}
 
-		// 🚨 终极黑名单过滤：在此处直接拦截，不进表格
+		if result.Network != nil && result.Network.StatusCode == 404 {
+			continue
+		}
+
 		finalDomainLower := strings.ToLower(finalDomain)
 		if strings.Contains(finalDomainLower, "apple.com") ||
 			strings.Contains(finalDomainLower, "icloud.com") ||
