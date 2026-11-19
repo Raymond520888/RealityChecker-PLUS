@@ -41,7 +41,6 @@ func (r *RootCmd) executeCheck(domain string) {
 	formatter := report.NewFormatter(cfg)
 	fmt.Printf("\n%s", formatter.FormatSingleResult(result))
 
-	// ❌ 显示广告的代码已被移除
 }
 
 // isValidDomain 验证域名格式是否有效
