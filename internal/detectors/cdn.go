@@ -16,14 +16,8 @@ type CDNStage struct {
 
 // NewCDNStage 创建CDN检测阶段
 func NewCDNStage() *CDNStage {
-	// 直接使用基础的 New() 初始化
-	client, err := cdncheck.New()
-	if err != nil {
-		// 如果初始化失败，返回一个带有空 Client 的结构体，防止程序崩溃
-		return &CDNStage{
-			client: &cdncheck.Client{},
-		}
-	}
+	// cdncheck.New() 只返回一个值，没有 error
+	client := cdncheck.New()
 	return &CDNStage{
 		client: client,
 	}
