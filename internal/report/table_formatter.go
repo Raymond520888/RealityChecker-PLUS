@@ -67,6 +67,16 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 			finalDomain = result.Network.FinalDomain
 		}
 
+		// 🚨 终极黑名单过滤：在此处直接拦截，不进表格
+		finalDomainLower := strings.ToLower(finalDomain)
+		if strings.Contains(finalDomainLower, "apple.com") ||
+			strings.Contains(finalDomainLower, "icloud.com") ||
+			strings.Contains(finalDomainLower, "cloudflare.com") ||
+			strings.Contains(finalDomainLower, "tesla.com") ||
+			strings.Contains(finalDomainLower, "microsoft.com") {
+			continue
+		}
+
 		// 基础条件（TLS1.3 + X25519MLKEM768 + H2 + SNI匹配）
 		var basicConditionsText string
 		if result.TLS != nil && result.SNI != nil {
