@@ -130,8 +130,16 @@ func (tf *TableFormatter) FormatSuitableTable(results []*types.DetectionResult) 
 		if !tf.isDetectorExecuted(result, "cdn") {
 			cdnText = text.FgRed.Sprint("无效")
 		} else if result.CDN != nil && result.CDN.IsCDN {
-			confidence := result.CDN.Confidence
-			cdnText = text.FgRed.Sprint(confidence)
+			switch result.CDN.Confidence {
+			case "高":
+				cdnText = text.FgRed.Sprint("高")
+			case "中":
+				cdnText = text.FgYellow.Sprint("中")
+			case "低":
+				cdnText = text.FgBlue.Sprint("低")
+			default:
+				cdnText = text.FgRed.Sprint(result.CDN.Confidence)
+			}
 		} else {
 			cdnText = text.FgGreen.Sprint("无")
 		}
