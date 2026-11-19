@@ -15,8 +15,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.27'
           cache: true
+
+      - name: Download dependencies
+        run: go mod tidy
 
       - name: Build for Linux (amd64)
         run: |
@@ -28,6 +31,7 @@ jobs:
 
       - name: Package Binaries
         run: |
+          rm -f RealityChecker-linux-*.zip
           zip -r RealityChecker-linux-amd64.zip RealityChecker-linux-amd64
           zip -r RealityChecker-linux-arm64.zip RealityChecker-linux-arm64
 
@@ -40,7 +44,7 @@ jobs:
             RealityChecker-linux-arm64.zip
 
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
           files: |
